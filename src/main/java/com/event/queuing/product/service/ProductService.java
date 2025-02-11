@@ -8,4 +8,5 @@ public interface ProductService {
 
     void saveProduct();
 
+    void bulkSaveProduct();
 }

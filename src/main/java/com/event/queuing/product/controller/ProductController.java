@@ -19,10 +19,17 @@ public class ProductController {
 //        return "Successfully published message";
 //    }
 
-    @GetMapping("/save-test")
+    @PostMapping("/save")
     public String saveProduct() {
         this.productService.saveProduct();
         return "Saved product";
+    }
+
+    @PostMapping("/bulk-save")
+    public String bulkSaveProduct() {
+//        this.productService.saveProduct();
+        this.productService.bulkSaveProduct();
+        return "Bulk Saved product";
     }
 
 }
