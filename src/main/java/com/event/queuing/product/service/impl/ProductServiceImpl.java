@@ -4,6 +4,7 @@ import com.event.queuing.product.entity.Product;
 import com.event.queuing.product.entity.ProductCategory;
 import com.event.queuing.product.repository.ProductRepository;
 import com.event.queuing.product.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 
 @Service
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -30,21 +32,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = RuntimeException.class)
     public void bulkSaveProduct() {
         LinkedList<Product> products = new LinkedList<>();
-        for(int i=1; i<=1000; i++) {
-            Product product = new Product();
-            product.setName("Test_"+i);
-            product.setQuantity(i*10L);
-            product.setPrice(99D*i);
-//            products.add(product);
-            this.productRepository.save(product);
-            if(i%50==0) {
-                this.productRepository.flush();
+        try {
+            for (int i = 1; i <= 10; i++) {
+                Product product = new Product();
+                product.setName("Test_" + i);
+                product.setQuantity(i * 10L);
+                product.setPrice(99D * i);
+                this.productRepository.saveAndFlush(product);
+                if (i == 7) {
+                    throw new RuntimeException("Something went wrong");
+                }
             }
+        } catch (RuntimeException e) {
+            log.info("Error :: {}", e.getMessage());
+            throw e;
         }
-        this.productRepository.saveAll(products);
     }
 
 }
